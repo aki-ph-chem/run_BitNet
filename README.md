@@ -9,12 +9,18 @@
     - cmake=>3.22
     - clang>=18
 
-- 自分の環境:
+- 自分の環境
     - python == 3.12.7
     - cmake == 3.30.5
     - clang == 18.1.9
 
-公式はcondaを推奨しているけど、Poetryでもいけるかな？ -> いけそう！
+- 自分の環境(マシン)1
+    - OS: Arch Linux x86\_64
+    - Kernel: 6.11.4-arch2-1
+    - CPU: 13th Gen Intel i7-13700 (24) @ 5.100GHz
+    - Memory: 31851MiB
+
+公式はcondaを推奨しているけど、Poetryでもいけるかな？ -> ~~いけそう！~~ いけた
 
 1. リポジトリのclone
 
@@ -52,18 +58,18 @@ INFO:root:Converting HF model to GGUF format...
 ERROR:root:Error occurred while running command: Command '['/home/aki/run_BitNet/BitNet/.venv/bin/python', 'utils/convert-hf-to-gguf-bitnet.py', 'models/Llama3-8B-1.58-100B-tokens', '--outtype', 'f32']' died with <Signals.SIGKILL: 9>., check details in logs/convert_to_f32_gguf.log
 ```
 
-ログを読んでも原因が分らない！
+~~ログを読んでも原因が分らない~~
 
 同じような症状は[issue](https://github.com/microsoft/BitNet/issues/27)にもあった。
 
 デフォルトの`HF1BitLLM/Llama3-8B-1.58-100B-tokens`は結局モデルがかなり大規模らしく、モデル変換でメモリが足りなくなって、死んでしまうらしい。
-そこでより、小さなモデルである3Bのモデルを試すことにした。
+そこでより、小さなモデルである3Bだとそこまでメモリがリッチじゃないマシンでも動くらしいのでそっちを動かしてみる。
 
 ```bash
-poetry run python setup_env.py --hf-repo 1bitLLM/bitnet_b1_58-3B -q i2_s # 結構時間がかかる
+poetry run python setup_env.py --hf-repo 1bitLLM/bitnet_b1_58-3B -q i2_s
 ```
 
-こっちは、うまくビルドできた。
+こっちは、うまくビルドできた(OS: Arch Linux x86\_64, Kernel: 6.11.4-arch2-1, CPU: 13th Gen Intel i7-13700 (24) @ 5.100GHz, Memory: 31851 MB)。
 
 ## ついに動かす!
 
@@ -209,11 +215,20 @@ llama_perf_context_print:       total time =    3738.71 ms /    59 tokens
 
 ### 他のモデルも動かす
 
-- `1bitLLM/bitnet_b1_58-large`
+以下のモデルが使えるらしい(`1bitLLM/bitnet_b1_58-3B`,`HF1BitLLM/Llama3-8B-1.58-100B-tokens`)はもう試した。
 
-こっちのモデルもビルドできた！
+- model
+    - `1bitLLM/bitnet_b1_58-large`
+    - `1bitLLM/bitnet_b1_58-3B`
+    - `HF1BitLLM/Llama3-8B-1.58-100B-tokens`
+
+
+
+#### `1bitLLM/bitnet_b1_58-large`を動かす。
+
+こっちのモデルもビルドできた！(OS: Arch Linux x86\_64, Kernel: 6.11.4-arch2-1, CPU: 13th Gen Intel i7-13700 (24) @ 5.100GHz, Memory: 31851 MB)
 ```bash
-$ poetry run python setup_env.py --hf-repo 1bitLLM/bitnet_b1_58-large -q i2_s
+poetry run python setup_env.py --hf-repo 1bitLLM/bitnet_b1_58-large -q i2_s
 INFO:root:Compiling the code using CMake.
 INFO:root:Downloading model 1bitLLM/bitnet_b1_58-large from HuggingFace to models/bitnet_b1_58-large...
 INFO:root:Converting HF model to GGUF format...
