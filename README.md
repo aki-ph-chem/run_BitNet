@@ -369,3 +369,14 @@ llama_perf_context_print:       total time =    1321.96 ms /    59 tokens
 ```
 
 こっちだと、答が出力されてる！
+
+
+### Laptopでは...
+
+- laptopマシン
+    - OS: Arch Linux x86_64
+    - Kernel: 6.11.4-arch1-1
+    - CPU: 13th Gen Intel i5-13500H (16) @ 4.700GHz
+    - Memory: 15655MiB
+
+では、`1bitLLM/bitnet_b1_58-large` しかモデル変換に成功しなかった(変換に成功したモデルはちゃんと実行できた)。
