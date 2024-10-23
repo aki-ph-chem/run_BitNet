@@ -380,3 +380,23 @@ llama_perf_context_print:       total time =    1321.96 ms /    59 tokens
     - Memory: 15655MiB
 
 では、`1bitLLM/bitnet_b1_58-large` しかモデル変換に成功しなかった(変換に成功したモデルはちゃんと実行できた)。
+
+## メモリ不足問題の解決策
+
+ビルドで転けた際に参照した[issue](https://github.com/microsoft/BitNet/issues/27)を読むとどうやらそこまでRAMが多くなくても、
+swapがある程度あれば`HF1BitLLM/Llama3-8B-1.58-100B-tokens`の変換に成功するらしい(その人は20GiBのRAMで、20GiBのswap)。
+そこで、swapを作成して変換処理を行ってみることにした。
+
+まず、Laptopで20GiBのswap fileを作成してから`1bitLLM/bitnet_b1_58-3B`の変換処理を行なうと成功し、そのモデルの実行にも成功した。
+しかし、`HF1BitLLM/Llama3-8B-1.58-100B-tokens`では、変換には成功しなかった。
+
+```bash
+ $ poetry run python setup_env.py --hf-repo HF1BitLLM/Llama3-8B-1.58-100B-tokens -q i2_s
+INFO:root:Compiling the code using CMake.
+INFO:root:Downloading model HF1BitLLM/Llama3-8B-1.58-100B-tokens from HuggingFace to models/Llama3-8B-1.58-100B-tokens...
+INFO:root:Converting HF model to GGUF format...
+ERROR:root:Error occurred while running command: Command '['/home/aki/run_BitNet/BitNet/.venv/bin/python', 'utils/convert-hf-to-gguf-bitnet.py', 'models/Llama3-8B-1.58-100B-tokens', '--outtype', 'f32']' died with <Signals.SIGKILL: 9>., check details in logs/convert_to_f32_gguf.log
+```
+
+続いて、Desktopマシンでも20Gibのswap fileを作成してから`HF1BitLLM/Llama3-8B-1.58-100B-tokens`の変換処理を行なうと、
+無事成功し、このモデルもちゃんと動作した。
