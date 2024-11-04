@@ -44,6 +44,15 @@ poetry run pip install -r requirements.txt
 
 4. ビルド
 
+以下のモデルが利用可能である。
+
+- model
+    - `1bitLLM/bitnet_b1_58-large`
+    - `1bitLLM/bitnet_b1_58-3B`
+    - `HF1BitLLM/Llama3-8B-1.58-100B-tokens`
+
+まず、モデル`HF1BitLLM/Llama3-8B-1.58-100B-tokens`のビルドを試みた。
+
 ```bash
 poetry run python setup_env.py --hf-repo HF1BitLLM/Llama3-8B-1.58-100B-tokens -q i2_s # 結構時間がかかる
 ```
@@ -64,7 +73,7 @@ ERROR:root:Error occurred while running command: Command '['/home/aki/run_BitNet
 
 
 デフォルトの`HF1BitLLM/Llama3-8B-1.58-100B-tokens`は結局モデルがかなり大規模らしく、モデル変換でメモリが足りなくなって、死んでしまうらしい。
-そこでより、小さなモデルである3Bだとそこまでメモリがリッチじゃないマシンでも動くらしいのでそっちを動かしてみる。
+そこでより、小さなモデルである3Bな`1bitLLM/bitnet_b1_58-3B`だとそこまでメモリがリッチじゃないマシンでも動くらしいのでそっちを動かしてみる。
 
 ```bash
 poetry run python setup_env.py --hf-repo 1bitLLM/bitnet_b1_58-3B -q i2_s
@@ -72,7 +81,7 @@ poetry run python setup_env.py --hf-repo 1bitLLM/bitnet_b1_58-3B -q i2_s
 
 こっちではビルドに成功した。
 
-## モデルを動かす!
+### モデル`1bitLLM/bitnet_b1_58-3B`を動かす!
 
 ```bash
 python run_inference.py -m models/bitnet_b1_58-3B/ggml-model-i2_s.gguf -p "Daniel went back to the the the garden. Mary travelled to the kitchen. Sandra journeyed to the kitchen. Sandra went to the hallway. John went to the bedroom. Mary went back to the garden. Where is Mary?\nAnswer:" -n 6 -temp 0
@@ -93,18 +102,9 @@ llama_perf_context_print:        eval time =     322.18 ms /     5 runs   (   64
 llama_perf_context_print:       total time =    3738.71 ms /    59 tokens
 ```
 
-### 他のモデルも動かす
+### モデル`1bitLLM/bitnet_b1_58-large`もビルド&実行する
 
-以下のモデルが使えるらしい(`1bitLLM/bitnet_b1_58-3B`,`HF1BitLLM/Llama3-8B-1.58-100B-tokens` はもう試した。)
-
-- model
-    - `1bitLLM/bitnet_b1_58-large`
-    - `1bitLLM/bitnet_b1_58-3B`
-    - `HF1BitLLM/Llama3-8B-1.58-100B-tokens`
-
-#### `1bitLLM/bitnet_b1_58-large`をビルド&実行する
-
-こっちのモデルもビルドに成功した。
+こっちのモデルでもビルドに成功した。
 ```bash
 $ poetry run python setup_env.py --hf-repo 1bitLLM/bitnet_b1_58-large -q i2_s
 INFO:root:Compiling the code using CMake.
@@ -113,9 +113,9 @@ INFO:root:Converting HF model to GGUF format...
 INFO:root:GGUF model saved at models/bitnet_b1_58-large/ggml-model-i2_s.gguf
 ```
 
-こちらのモデルも動かした。
+動かしてみると以下のような結果を得た。
 
-(一部抜粋 [詳細](./detail/))
+(一部抜粋 [詳細](./detail/detail_2))
 ```txt
  Daniel went back to the the the garden. Mary travelled to the kitchen. Sandra journeyed to the kitchen. Sandra went to the hallway. John went to the bedroom. Mary went back to the garden. Where is Mary?
 Answer: Mary went to the kitchen.
@@ -128,7 +128,6 @@ llama_perf_context_print:       total time =    1321.96 ms /    59 tokens
 ```
 
 こっちだと、それっぽい答が出力されていることが分る。
-
 
 ## Laptopの環境でもビルド&実行をしてみる
 
@@ -159,3 +158,27 @@ ERROR:root:Error occurred while running command: Command '['/home/aki/run_BitNet
 
 続いて、Desktopマシンでも20Gibのswap fileを作成してから`HF1BitLLM/Llama3-8B-1.58-100B-tokens`の変換処理を行なうと、
 無事成功し、このモデルもちゃんと動作した。
+
+## 試してみた質問
+
+リポジトリのサンプルにあった質問
+
+```txt
+Daniel went back to the the the garden. Mary travelled to the kitchen.
+Sandra journeyed to the kitchen. Sandra went to the hallway.
+John went to the bedroom. Mary went back to the garden. Where is Mary?\nAnswer:
+```
+
+以外にも適当な質問をモデル`HF1BitLLM/Llama3-8B-1.58-100B-tokens`に与えて実行した。
+
+以下のような簡単な質問には正確に答えることができていた。
+
+- If today is Monday, and the day after tomorrow is Friday, what day is it today?
+- There are 5 birds on a tree. A hunter shoots 2 birds. How many birds are left on the tree?
+- Jane is taller than Emma, but shorter than Lucy. Who is the tallest?
+-   There are 4 red balls and 3 blue balls in a basket. If you take out 2 blue balls, how many blue balls are left?
+-  A man has 10 apples. He eats 4 and gives 3 to his friend. How many apples does he have left?
+
+逆に以下のような質問にはまともな答えは返ってこなかった。
+
+- The sun rises in the east and sets in the west. If it’s morning and you are facing the sunrise, which direction is behind you?
